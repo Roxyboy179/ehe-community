@@ -1,0 +1,4099 @@
+ <script>
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    const overlays = document.querySelectorAll('.form-overlay');
+    overlays.forEach(overlay => {
+        if (event.target === overlay) {
+            overlay.style.display = 'none';
+        }
+    });
+
+    const profileModal = document.getElementById('profileModal');
+    if (profileModal && event.target === profileModal) {
+        closeProfileModal();
+    }
+
+    const updatesModal = document.getElementById('updatesModal');
+    if (updatesModal && event.target === updatesModal) {
+        closeUpdatesModal();
+    }
+});
+
+function closeWelcome() {
+  document.getElementById('welcomeOverlay').style.display = 'none';
+}
+
+
+// Welcome system with timer and effects
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const overlay = document.getElementById('welcomeOverlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    // Play sound
+    const sound = document.getElementById('welcomeSound');
+    if (sound) sound.play().catch(() => {});
+
+    // Start confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }, 4000); // 4 Sekunden Verzögerung
+
+  // Animate particles
+  const canvas = document.getElementById('particlesCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function createParticles() {
+    particles = Array.from({length: 60}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    }));
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+
+  createParticles();
+  drawParticles();
+});
+
+</script><!DOCTYPE html>
+
+<html lang="de">
+<head>
+<style>
+/* DONALD BUTTON STYLE mit Dark-/Light-Mode Support */
+.btn-donold {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  color: #fff;
+  background: linear-gradient(135deg, #feca57, #ff6b6b);
+  border: none;
+  border-radius: 30px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* Dark Mode Anpassung */
+body.dark-mode .btn-donold {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.btn-donold::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-20deg);
+  z-index: 0;
+  opacity: 0;
+}
+
+.btn-donold:hover::before {
+  animation: shimmerLoop 2.5s infinite;
+  opacity: 1;
+}
+
+.btn-donold:hover {
+  animation: pulseGlow 3.5s infinite ease-in-out, vibrateHover 0.4s infinite;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 0 50px #feca57;
+  transform: scale(1.05);
+}
+
+.btn-donold:active {
+  transform: scale(0.96);
+}
+
+@keyframes shimmerLoop {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+  50% { box-shadow: 0 0 30px #feca57, 0 0 40px #ff6b6b; }
+  100% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+}
+
+@keyframes vibrateHover {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  50% { transform: translateX(1px); }
+  75% { transform: translateX(-1px); }
+}
+
+@keyframes popupDropIn {
+  0% {
+    transform: scale(0.8) translateY(-30px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05) translateY(10px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+.form-container {
+  animation: popupDropIn 0.6s ease;
+}
+
+
+#mobileOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+#mobileOverlay .form-container {
+  background: linear-gradient(135deg, #333, #111);
+  color: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  animation: popupShow 0.6s ease;
+}
+
+#mobileOverlay h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+#mobileOverlay p {
+  font-size: 16px;
+  line-height: 1.4;
+}
+</style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EHE Community Web - Beta</title>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
+            color: #fff;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeOut 1s ease-in-out 19s forwards;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            animation:  1.4s ease-in-out infinite both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        .loading-text {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 300;
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .user-menu {
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu.active {
+            display: flex;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(180deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out 20s forwards;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 100px 20px;
+            color: #fff;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideUp 1s ease-out 20.5s forwards;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: slideUp 1s ease-out 21s forwards;
+        }
+
+        
+
+  100% { transform: rotateZ(360deg); }
+}
+
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideUp 0.8s ease-out 21.5s forwards;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .content-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .content-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .guest-limited {
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .guest-limited::after {
+            content: "🔒 Nur für Mitglieder";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .dark-mode .form-container {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .form-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .dark-mode .form-group label {
+            color: #fff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 3000;
+            animation: slideInRight 0.3s ease;
+            display: none;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.warning {
+            background: #ff9800;
+        }
+
+        /* Guest Reminder */
+        .guest-reminder {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1500;
+            animation:  0.5s ease;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Inactivity Warning */
+        .inactivity-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ff6b6b;
+            color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 2500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            
+            display: none;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-assistant i {
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .ai-chat {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1100;
+            display: none;
+            flex-direction: column;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .dark-mode .ai-chat {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .ai-chat-header {
+            padding: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ai-chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .ai-chat-input button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Contact */
+        .contact-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 40px;
+            border-radius: 15px;
+        }
+
+        .contact-email {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .profile-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            border-radius: 25px;
+            width: 500px;
+            max-width: 90%;
+            position: relative;
+            animation: profileSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .profile-header {
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation:  0.6s ease 0.2s both;
+        }
+
+        .profile-name {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            animation: textSlideUp 0.5s ease 0.3s both;
+        }
+
+        .profile-email {
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            animation: textSlideUp 0.5s ease 0.4s both;
+        }
+
+        .profile-body {
+            padding: 30px;
+            color: #fff;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            animation: statPop 0.4s ease var(--delay) both;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #feca57;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .profile-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: buttonSlideUp 0.4s ease var(--delay) both;
+        }
+
+        .profile-btn.primary {
+            background: #fff;
+            color: #667eea;
+        }
+
+        .profile-btn.secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn.danger {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Community Updates Modal */
+        .updates-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .updates-container {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 0;
+            border-radius: 25px;
+            width: 700px;
+            max-width: 95%;
+            max-height: 80vh;
+            position: relative;
+            animation: updatesSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .updates-header {
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .updates-title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            animation: titleGlow 0.6s ease 0.2s both;
+        }
+
+        .updates-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            animation: textSlideUp 0.5s ease 0.4s both;
+        }
+
+        .updates-body {
+            padding: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #fff;
+        }
+
+        .update-item {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: updateSlideIn 0.5s ease var(--delay) both;
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+
+        .update-item:hover {
+            transform: translateX(10px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .update-date {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .update-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #feca57;
+        }
+
+        .update-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .update-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .update-tag {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            animation: tagPop 0.3s ease var(--tag-delay) both;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: closeButtonSpin 0.5s ease 0.3s both;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        
+            40% { transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        
+            to { transform: translateX(-50%) scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        
+            10%, 30%, 50%, 70%, 90% { transform: translate(-51%, -50%); }
+            20%, 40%, 60%, 80% { transform: translate(-49%, -50%); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Modal Animations */
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes profileSlideIn {
+            from { 
+                transform: scale(0.3) rotateY(-90deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotateY(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes updatesSlideIn {
+            from { 
+                transform: scale(0.5) rotateX(-90deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotateX(0deg);
+                opacity: 1;
+            }
+        }
+
+        
+            60% { 
+                transform: scale(1.2) rotate(-10deg);
+            }
+            to { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes textSlideUp {
+            from { 
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes statPop {
+            from { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.1);
+            }
+            to { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes buttonSlideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes titleGlow {
+            from { 
+                transform: scale(0.8);
+                opacity: 0;
+                text-shadow: 0 0 0 rgba(255,255,255,0);
+            }
+            to { 
+                transform: scale(1);
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            }
+        }
+
+        @keyframes updateSlideIn {
+            from { 
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes tagPop {
+            from { 
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes closeButtonSpin {
+            from { 
+                transform: rotate(-180deg) scale(0);
+                opacity: 0;
+            }
+            to { 
+                transform: rotate(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .nav-buttons { gap: 10px; }
+            .btn { padding: 8px 16px; font-size: 12px; }
+            .ai-chat { width: 300px; right: 20px; }
+        }
+    
+.welcome-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.welcome-box {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  width: 90%;
+  max-width: 400px;
+  animation: slideUp 0.6s ease-out;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.welcome-box h2 {
+  margin-bottom: 10px;
+}
+
+.welcome-box p {
+  margin-bottom: 20px;
+}
+
+.welcome-close {
+  position: absolute;
+  top: 10px; right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.welcome-close:hover {
+  transform: rotate(90deg);
+}
+
+
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 15px 15px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.welcome-box {
+  animation:  0.8s ease forwards;
+}
+
+.welcome-box h2 {
+  animation: slideUp 0.8s ease 0.2s forwards;
+  opacity: 0;
+}
+
+.welcome-box p {
+  animation: slideUp 0.8s ease 0.4s forwards;
+  opacity: 0;
+}
+
+.welcome-box a.btn {
+  animation: pulseGlow 2s infinite 1s;
+}
+
+
+.welcome-box {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(118, 75, 162, 0.5);
+}
+
+
+.loading-screen {
+  background: radial-gradient(circle at center, #667eea 0%, #764ba2 100%);
+  animation: loadingFadeIn 1s ease-in-out;
+}
+
+@keyframes loadingFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.loading-text {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  animation: loadingTextAnim 2s ease-in-out infinite alternate;
+}
+
+@keyframes loadingTextAnim {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #feca57;
+    color: #fff;
+  }
+  to {
+    text-shadow: 0 0 20px #feca57, 0 0 30px #ff6b6b;
+    color: #feca57;
+  }
+}
+
+.loading-spinner {
+  border-width: 6px;
+  border-top-color: #feca57;
+  animation: spinGlow 1s linear infinite;
+}
+
+@keyframes spinGlow {
+  0% { transform: rotate(0deg); box-shadow: 0 0 10px #fff; }
+  50% { box-shadow: 0 0 20px #feca57; }
+  100% { transform: rotate(360deg); box-shadow: 0 0 10px #fff; }
+}
+
+.beta-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 10px;
+  animation:  1.6s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.6);
+  text-shadow: 0 0 5px rgba(255,255,255,0.7);
+  transition: transform 0.3s ease;
+}
+
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+</style>
+<style>
+@keyframes cardClickEffect {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05) rotateZ(1deg); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+    100% { transform: scale(1); }
+}
+
+.content-card.animate-click {
+    animation: cardClickEffect 0.6s ease;
+}
+</style>
+<style>
+  .form-overlay.dark-overlay .form-container {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border: 2px solid #555;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .form-overlay.dark-overlay input {
+    background-color: #2a2a2a;
+    color: #fff;
+    border-color: #444;
+  }
+
+  .form-overlay.dark-overlay label {
+    color: #eee;
+  }
+
+  .form-overlay.dark-overlay .form-close {
+    color: #ccc;
+  }
+</style>
+<style>
+  /* Animation für das Popup (sanftes Pulsieren auch ohne Hover) */
+  .form-overlay.dark-overlay .form-container {
+    animation: softPulse 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+  }
+
+  /* Zusätzliche Hover-Effekte */
+  .form-overlay.dark-overlay .form-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
+  @keyframes softPulse {
+    0% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+  }
+</style>
+<style>
+  /* Sanfter Puls-Effekt für die Popups auch ohne Hover */
+  .form-overlay.dark-overlay .form-container {
+    animation: softPulse 3s ease-in-out infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Stärkerer Effekt bei Hover */
+  .form-overlay.dark-overlay .form-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
+  @keyframes softPulse {
+    0% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+  }
+</style>
+<style>
+  /* Sanfter Puls-Effekt für die Popups auch ohne Hover oder Klick */
+  .form-overlay.dark-overlay .form-container,
+  .content-card {
+    animation: softPulse 3s ease-in-out infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Effekt bei Hover (stärker) für Popups */
+  .form-overlay.dark-overlay .form-container:hover,
+  .content-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+
+  @keyframes softPulse {
+    0% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+  }
+</style>
+<style>
+  /* Eleganter, weicher Puls-Effekt */
+  .form-overlay.dark-overlay .form-container,
+  .content-card {
+    animation: elegantPulse 6s ease-in-out infinite;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    will-change: transform, box-shadow;
+  }
+
+  .form-overlay.dark-overlay .form-container:hover,
+  .content-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+
+  @keyframes elegantPulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
+    }
+    50% {
+      transform: scale(1.01);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
+    }
+  }
+</style>
+<style>
+  .content-card {
+    position: relative;
+    overflow: hidden;
+    animation: elegantPulse 5s ease-in-out infinite, floatCard 8s ease-in-out infinite;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    will-change: transform, box-shadow;
+  }
+
+  .content-card::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,0.25), rgba(255,255,255,0));
+    transform: rotate(25deg);
+    animation: shimmer 4s linear infinite;
+    pointer-events: none;
+    opacity: 1;
+  }
+
+  @keyframes elegantPulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(255, 255, 255, 0.25); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 255, 255, 0.15); }
+  }
+
+  @keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translate(-100%, -100%) rotate(25deg); opacity: 0.2; }
+    50% { opacity: 0.6; }
+    100% { transform: translate(100%, 100%) rotate(25deg); opacity: 0.2; }
+  }
+</style>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
+            color: #fff;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeOut 1s ease-in-out 19s forwards;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            animation:  1.4s ease-in-out infinite both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        .loading-text {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 300;
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .user-menu {
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu.active {
+            display: flex;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(180deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out 20s forwards;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 100px 20px;
+            color: #fff;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: slideUp 1s ease-out 20.5s forwards;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: slideUp 1s ease-out 21s forwards;
+        }
+
+        
+
+  100% { transform: rotateZ(360deg); }
+}
+
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideUp 0.8s ease-out 21.5s forwards;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .content-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .content-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .guest-limited {
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .guest-limited::after {
+            content: "🔒 Nur für Mitglieder";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .dark-mode .form-container {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .form-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .dark-mode .form-group label {
+            color: #fff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 3000;
+            animation: slideInRight 0.3s ease;
+            display: none;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.warning {
+            background: #ff9800;
+        }
+
+        /* Guest Reminder */
+        .guest-reminder {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1500;
+            animation:  0.5s ease;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Inactivity Warning */
+        .inactivity-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ff6b6b;
+            color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 2500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            
+            display: none;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-assistant i {
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .ai-chat {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1100;
+            display: none;
+            flex-direction: column;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .dark-mode .ai-chat {
+            background: #2c3e50;
+            color: #fff;
+        }
+
+        .ai-chat-header {
+            padding: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ai-chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .ai-chat-input button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Contact */
+        .contact-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 40px;
+            border-radius: 15px;
+        }
+
+        .contact-email {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .profile-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            border-radius: 25px;
+            width: 500px;
+            max-width: 90%;
+            position: relative;
+            animation: profileSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .profile-header {
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation:  0.6s ease 0.2s both;
+        }
+
+        .profile-name {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            animation: textSlideUp 0.5s ease 0.3s both;
+        }
+
+        .profile-email {
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            animation: textSlideUp 0.5s ease 0.4s both;
+        }
+
+        .profile-body {
+            padding: 30px;
+            color: #fff;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            animation: statPop 0.4s ease var(--delay) both;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #feca57;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .profile-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: buttonSlideUp 0.4s ease var(--delay) both;
+        }
+
+        .profile-btn.primary {
+            background: #fff;
+            color: #667eea;
+        }
+
+        .profile-btn.secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+        }
+
+        .profile-btn.danger {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Community Updates Modal */
+        .updates-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .updates-container {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 0;
+            border-radius: 25px;
+            width: 700px;
+            max-width: 95%;
+            max-height: 80vh;
+            position: relative;
+            animation: updatesSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .updates-header {
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .updates-title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            animation: titleGlow 0.6s ease 0.2s both;
+        }
+
+        .updates-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            animation: textSlideUp 0.5s ease 0.4s both;
+        }
+
+        .updates-body {
+            padding: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #fff;
+        }
+
+        .update-item {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: updateSlideIn 0.5s ease var(--delay) both;
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+
+        .update-item:hover {
+            transform: translateX(10px);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .update-date {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .update-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #feca57;
+        }
+
+        .update-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .update-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .update-tag {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            animation: tagPop 0.3s ease var(--tag-delay) both;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: closeButtonSpin 0.5s ease 0.3s both;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        
+            40% { transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        
+            to { transform: translateX(-50%) scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        
+            10%, 30%, 50%, 70%, 90% { transform: translate(-51%, -50%); }
+            20%, 40%, 60%, 80% { transform: translate(-49%, -50%); }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Modal Animations */
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes profileSlideIn {
+            from { 
+                transform: scale(0.3) rotateY(-90deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotateY(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes updatesSlideIn {
+            from { 
+                transform: scale(0.5) rotateX(-90deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotateX(0deg);
+                opacity: 1;
+            }
+        }
+
+        
+            60% { 
+                transform: scale(1.2) rotate(-10deg);
+            }
+            to { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes textSlideUp {
+            from { 
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes statPop {
+            from { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.1);
+            }
+            to { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes buttonSlideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes titleGlow {
+            from { 
+                transform: scale(0.8);
+                opacity: 0;
+                text-shadow: 0 0 0 rgba(255,255,255,0);
+            }
+            to { 
+                transform: scale(1);
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            }
+        }
+
+        @keyframes updateSlideIn {
+            from { 
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes tagPop {
+            from { 
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes closeButtonSpin {
+            from { 
+                transform: rotate(-180deg) scale(0);
+                opacity: 0;
+            }
+            to { 
+                transform: rotate(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .nav-buttons { gap: 10px; }
+            .btn { padding: 8px 16px; font-size: 12px; }
+            .ai-chat { width: 300px; right: 20px; }
+        }
+    
+.welcome-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.welcome-box {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  width: 90%;
+  max-width: 400px;
+  animation: slideUp 0.6s ease-out;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.welcome-box h2 {
+  margin-bottom: 10px;
+}
+
+.welcome-box p {
+  margin-bottom: 20px;
+}
+
+.welcome-close {
+  position: absolute;
+  top: 10px; right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.welcome-close:hover {
+  transform: rotate(90deg);
+}
+
+
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 15px 15px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.welcome-box {
+  animation:  0.8s ease forwards;
+}
+
+.welcome-box h2 {
+  animation: slideUp 0.8s ease 0.2s forwards;
+  opacity: 0;
+}
+
+.welcome-box p {
+  animation: slideUp 0.8s ease 0.4s forwards;
+  opacity: 0;
+}
+
+.welcome-box a.btn {
+  animation: pulseGlow 2s infinite 1s;
+}
+
+
+.welcome-box {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(118, 75, 162, 0.5);
+}
+
+
+.loading-screen {
+  background: radial-gradient(circle at center, #667eea 0%, #764ba2 100%);
+  animation: loadingFadeIn 1s ease-in-out;
+}
+
+@keyframes loadingFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.loading-text {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  animation: loadingTextAnim 2s ease-in-out infinite alternate;
+}
+
+@keyframes loadingTextAnim {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #feca57;
+    color: #fff;
+  }
+  to {
+    text-shadow: 0 0 20px #feca57, 0 0 30px #ff6b6b;
+    color: #feca57;
+  }
+}
+
+.loading-spinner {
+  border-width: 6px;
+  border-top-color: #feca57;
+  animation: spinGlow 1s linear infinite;
+}
+
+@keyframes spinGlow {
+  0% { transform: rotate(0deg); box-shadow: 0 0 10px #fff; }
+  50% { box-shadow: 0 0 20px #feca57; }
+  100% { transform: rotate(360deg); box-shadow: 0 0 10px #fff; }
+}
+
+.beta-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 10px;
+  animation:  1.6s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.6);
+  text-shadow: 0 0 5px rgba(255,255,255,0.7);
+  transition: transform 0.3s ease;
+}
+
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+</style></head>
+<body data-i18n="auto.key_8_loading_screen"><div class="notification" id="notification"></div>
+
+<select id="languageSelector" onchange="setLanguage(this.value)" style="position:fixed; top:15px; right:15px; z-index:1000; padding:6px; border-radius:8px;">
+<option data-i18n="auto.key_2_deutsch" value="de">Deutsch</option>
+<option data-i18n="auto.key_3_english" value="en">English</option>
+<option data-i18n="auto.key_4__sterreichisch" value="at">Österreichisch</option>
+</select>
+<canvas id="particlesCanvas" style="position: fixed; top: 0; left: 0; z-index: 3999; width: 100%; height: 100%; pointer-events: none;"></canvas>
+<audio id="welcomeSound" preload="auto" src="https://www.myinstants.com/media/sounds/pop-up-off.mp3"></audio>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">
+// Welcome system with timer and effects
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const overlay = document.getElementById('welcomeOverlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    // Play sound
+    const sound = document.getElementById('welcomeSound');
+    if (sound) sound.play().catch(() => {});
+
+    // Start confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }, 4000); // 4 Sekunden Verzögerung
+
+  // Animate particles
+  const canvas = document.getElementById('particlesCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function createParticles() {
+    particles = Array.from({length: 60}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    }));
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+
+  createParticles();
+  drawParticles();
+});
+
+</script>
+<div class="welcome-overlay" id="welcomeOverlay" style="display: none;">
+<div class="welcome-box">
+<button class="welcome-close" onclick="closeWelcome()">×</button>
+<h2 data-i18n="auto.key_5__willkommen_bei_der_ehe_community_">👋 Willkommen bei der EHE Community!</h2>
+<p data-i18n="auto.key_6_tritt_unserem_discord_bei_und_sei_teil_u">Tritt unserem Discord bei und sei Teil unserer wachsenden Community.</p>
+<a class="btn btn-primary" data-i18n="auto.key_7_zum_discord" href="https://discord.gg/QjnJJWK8U8" target="_blank">Zum Discord</a>
+</div>
+</div>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+<div class="loading-dots">
+</div>
+<div class="loading-text" data-i18n="auto.key_9_willkommen_bei_ehe_community_web">
+            Willkommen bei EHE Community Web<br/>
+            Gemeinsam. Stark. Vernetzt
+        </div>
+</div>
+<!-- Header -->
+<header class="header">
+<div class="nav-container">
+<a class="logo" data-i18n="auto.key_10_ehe_community" href="#">EHE Community <span class="beta-badge" data-i18n="auto.key_11_beta">BETA</span></a>
+<div class="nav-buttons" style="gap: 20px;">
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+<select id="languageSelector" onchange="setLanguage(this.value)" style="margin-left: 12px; padding: 6px; border-radius: 6px;">
+<option value="de">Deutsch</option>
+<option value="en">English</option>
+<option value="at">Österreichisch</option>
+</select>
+<div id="guestButtons">
+<button class="btn-donold" data-i18n="auto.key_12_anmelden" onclick="showLoginForm()">Anmelden</button>
+<button class="btn-donold" data-i18n="auto.key_13_registrieren" onclick="showRegisterForm()">Registrieren</button>
+</div>
+<div class="user-menu" id="userMenu">
+<span data-i18n="auto.key_14_willkommen_" id="userName">Willkommen!</span>
+<button class="btn btn-secondary" data-i18n="auto.key_15_profil" onclick="showProfile()">Profil</button>
+<button class="btn btn-primary" data-i18n="auto.key_16_abmelden" onclick="logout()">Abmelden</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="main-content" data-i18n="auto.key_17_hero_section" id="mainContent">
+<!-- Hero Section -->
+<section class="hero">
+<h1 data-i18n="auto.key_18_willkommen_in_der_ehe_community">Willkommen in der EHE Community</h1>
+<p data-i18n="auto.key_19_gemeinsam_stark_vernetzt_und_erfolgreich">Gemeinsam stark, vernetzt und erfolgreich - Deine Community wartet auf dich!</p>
+</section>
+<!-- Content Sections -->
+<div class="content-section">
+<h2 data-i18n="auto.key_20_aktuelle_beitr_ge" style="color: #fff; margin-bottom: 20px;">Aktuelle Beiträge</h2>
+<div class="content-grid">
+<div class="content-card" onclick="showCommunityUpdates(); animateCard(this)">
+<h3 data-i18n="auto.key_21_community_updates">Community Updates</h3>
+<p data-i18n="auto.key_22_erfahre_die_neuesten_nachrichten_aus_uns">Erfahre die neuesten Nachrichten aus unserer Community...</p>
+</div>
+<div class="content-card guest-limited" onclick="handleContentClick('restricted'); animateCard(this)">
+<h3 data-i18n="auto.key_23_exklusive_diskussionen">Exklusive Diskussionen</h3>
+<p data-i18n="auto.key_24_tausche_dich_mit_anderen_mitgliedern_aus">Tausche dich mit anderen Mitgliedern aus...</p>
+</div>
+<div class="content-card" onclick="handleContentClick('events'); animateCard(this)">
+<h3 data-i18n="auto.key_25_kommende_veranstaltungen">Kommende Veranstaltungen</h3>
+<p data-i18n="auto.key_26_verpasse_keine_wichtigen_events_">Verpasse keine wichtigen Events...</p>
+</div>
+</div>
+</div>
+<div class="content-section">
+<h2 data-i18n="auto.key_27_community_features" style="color: #fff; margin-bottom: 20px;">Community Features</h2>
+<div class="content-grid">
+<div class="content-card" onclick="showUserProfile(); animateCard(this)">
+<h3 data-i18n="auto.key_28_pers_nliches_profil">Persönliches Profil</h3>
+<p data-i18n="auto.key_29_gestalte_dein_individuelles_mitgliedspro">Gestalte dein individuelles Mitgliedsprofil...</p>
+</div>
+<div class="content-card guest-limited" onclick="handleContentClick('restricted'); animateCard(this)">
+<h3 data-i18n="auto.key_30_private_nachrichten">Private Nachrichten</h3>
+<p data-i18n="auto.key_31_kommuniziere_direkt_mit_anderen_mitglied">Kommuniziere direkt mit anderen Mitgliedern...</p>
+</div>
+<div class="content-card" onclick="handleContentClick('about'); animateCard(this)">
+<h3 data-i18n="auto.key_32__ber_die_community">Über die Community</h3>
+<p data-i18n="auto.key_33_lerne_mehr_ber_unsere_ziele_und_werte_">Lerne mehr über unsere Ziele und Werte...</p>
+</div>
+</div>
+</div>
+<!-- Neue Sektion: Unsere Richtlinien -->
+<div class="content-section">
+<h2 data-i18n="auto.key_34_unsere_richtlinien" style="color: #fff; margin-bottom: 20px;">Unsere Richtlinien</h2>
+<div class="content-grid">
+<div class="content-card" onclick="showPolicy('datenschutz', this)">
+<div class="access-badge green" data-i18n="auto.key_35_info">Info</div>
+<h3 data-i18n="auto.key_36_datenschutz">Datenschutz</h3>
+<p data-i18n="auto.key_37_erfahre_wie_wir_deine_daten_sch_tzen_und">Erfahre, wie wir deine Daten schützen und verwenden.</p>
+</div>
+<div class="content-card" onclick="showPolicy('nutzung', this)">
+<div class="access-badge green" data-i18n="auto.key_38_info">Info</div>
+<h3 data-i18n="auto.key_39_nutzungsbedingungen">Nutzungsbedingungen</h3>
+<p data-i18n="auto.key_40_unsere_regeln_und_bedingungen_f_r_die_nu">Unsere Regeln und Bedingungen für die Nutzung der Plattform.</p>
+</div>
+<div class="content-card" onclick="showPolicy('impressum', this)">
+<div class="access-badge green" data-i18n="auto.key_41_info">Info</div>
+<h3 data-i18n="auto.key_42_impressum">Impressum</h3>
+<p data-i18n="auto.key_43_angaben_gem_5_tmg_und_kontaktinformation">Angaben gemäß §5 TMG und Kontaktinformationen.</p>
+</div>
+</div>
+</div>
+<div class="form-overlay dark-overlay" id="policyOverlay" style="display: none;">
+<div class="form-container dark-popup animated-policy show-animation" id="policyPopup" onclick="event.stopPropagation()">
+<button class="form-close" onclick="closePolicy()">×</button>
+<h2 data-i18n="auto.key_44_richtlinie" id="policyTitle">Richtlinie</h2>
+</div>
+</div>
+<script>
+  let currentPolicyTimeout;
+  let currentPolicyName = "";
+
+  const data = {
+    datenschutz: {
+      title: "Datenschutz",
+      text: `Wir nehmen den Schutz deiner persönlichen Daten sehr ernst. Deine Informationen werden vertraulich und entsprechend der gesetzlichen Vorschriften behandelt.
+
+Wir speichern Daten nur dann, wenn es notwendig ist – etwa für die Anmeldung oder für personalisierte Funktionen. Unsere Server nutzen modernste Sicherheitsmaßnahmen wie SSL-Verschlüsselung, Zwei-Faktor-Authentifizierung und regelmäßige Sicherheitsprüfungen.
+
+Du hast das Recht auf Auskunft, Berichtigung, Löschung und Widerspruch. Eine Weitergabe deiner Daten an Dritte erfolgt nur, wenn du dem ausdrücklich zustimmst oder gesetzlich dazu verpflichtet wird.
+
+Unser Datenschutzteam steht dir jederzeit zur Verfügung.`
+    },
+    nutzung: {
+      title: "Nutzungsbedingungen",
+      text: `Mit der Nutzung unserer Plattform erklärst du dich mit den folgenden Bedingungen einverstanden:
+
+1. Die Plattform darf nicht missbraucht werden – etwa durch Spam, Betrug oder rechtswidrige Inhalte.
+2. Wir erwarten respektvollen Umgang innerhalb der Community.
+3. Inhalte, die Gewalt, Hass oder Diskriminierung verbreiten, werden gelöscht.
+4. Die Betreiber behalten sich das Recht vor, Beiträge zu prüfen und Nutzer zu verwarnen oder zu sperren.
+5. Die Regeln können sich ändern. Änderungen werden transparent kommuniziert.
+
+Mit dem Beitritt erklärst du dich damit einverstanden.`
+    },
+    impressum: {
+      title: "Impressum",
+      text: `Dies ist eine private, nicht-kommerzielle Website der EHE Community Web.
+
+Verantwortlich für Inhalte: Das EHE Team  
+E-Mail: hamburgp20@gmail.com`
+    }
+  };
+
+  
+function showPolicy(type, el) {
+  if (currentPolicyTimeout) clearTimeout(currentPolicyTimeout);
+
+  const overlay = document.getElementById("policyOverlay");
+  const popup = document.getElementById("policyPopup");
+  const title = document.getElementById("policyTitle");
+  const content = document.getElementById("policyContent");
+  const spinner = document.getElementById("policyLoadingSpinner");
+  const closeBtn = popup.querySelector(".form-close");
+
+  currentPolicyName = data[type].title;
+  title.textContent = currentPolicyName;
+  content.innerHTML = `<p style="text-align:center; font-style: italic; color: #aaa;">Einen Moment ... Ich öffne die Richtlinie für <strong>${currentPolicyName}</strong> ...</p>`;
+  spinner.style.display = "block";
+  content.style.opacity = "0.3";
+  content.style.pointerEvents = "none";
+  overlay.style.display = "flex";
+
+  closeBtn.disabled = true;
+  closeBtn.style.opacity = "0.5";
+  closeBtn.style.pointerEvents = "none";
+
+  // Entferne vorherige Clickhandler
+  overlay.onclick = null;
+
+  currentPolicyTimeout = setTimeout(() => {
+    spinner.style.display = "none";
+    content.style.opacity = "1";
+    content.style.pointerEvents = "auto";
+    content.innerHTML = `<div class='richtlinie-loaded' style='white-space: pre-line;'>${data[type].text}</div>`;
+
+    // Nach Ladevorgang: X aktivieren, Overlay-Klick blockiert
+    closeBtn.disabled = false;
+    closeBtn.style.opacity = "1";
+    closeBtn.style.pointerEvents = "auto";
+  }, 10000);
+}
+
+
+
+document.getElementById("policyOverlay").addEventListener("click", function(event) {
+  const popup = document.getElementById("policyPopup");
+  if (!popup.contains(event.target)) {
+    // Kein Schließen mehr durch Klick außerhalb
+    event.stopPropagation();
+  }
+});
+
+
+  
+function closePolicy() {
+  const overlay = document.getElementById("policyOverlay");
+  const popup = document.getElementById("policyPopup");
+  const spinner = document.getElementById("policyLoadingSpinner");
+  const content = document.getElementById("policyContent");
+
+  if (currentPolicyTimeout) clearTimeout(currentPolicyTimeout);
+
+  spinner.style.display = "none";
+  content.style.opacity = "1";
+  content.style.pointerEvents = "none";
+
+  popup.classList.remove("show-animation");
+  popup.classList.remove("hide-animation"); // Animation entfernen
+
+  overlay.style.display = "none";
+  content.innerHTML = "";
+  currentPolicyName = "";
+}
+
+</script>
+<style>
+  .form-overlay.dark-overlay {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+  }
+
+  .dark-popup {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border: 2px solid #555;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    margin: 1rem auto;
+    border: 5px solid #444;
+    border-top: 5px solid #feca57;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .close-info-animated {
+    opacity: 0;
+    animation: fadeInNotice 1s ease-in-out forwards;
+    color: #feca57;
+    text-align: center;
+    font-style: italic;
+    margin-top: 1rem;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes fadeInNotice {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .show-animation {
+    animation: popupShow 0.4s ease forwards;
+  }
+
+  .hide-animation {
+    animation: popupHide 0.4s ease forwards;
+  }
+
+  @keyframes popupShow {
+    0% { transform: scale(0.6) rotateX(-20deg); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes popupHide {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.6) rotateX(-20deg); opacity: 0; }
+  }
+</style>
+<!-- Contact Section -->
+<div class="contact-section">
+<h2 data-i18n="auto.key_45_kontakt" style="color: #fff; margin-bottom: 20px;">Kontakt</h2>
+<div class="contact-email" data-i18n="auto.key_46_e_mail_hamburgrp20_gmail_com">E-Mail: hamburgrp20@gmail.com</div>
+<button class="btn btn-primary" data-i18n="auto.key_47_kontaktformular" onclick="showContactForm()">Kontaktformular</button>
+</div>
+</main>
+<!-- Login Form -->
+<div class="form-overlay" id="loginOverlay">
+<div class="form-container">
+<button class="form-close" onclick="closeForm('loginOverlay')">×</button>
+<h2 data-i18n="auto.key_48_anmelden">Anmelden</h2>
+<form id="loginForm" onsubmit="handleLogin(event)">
+<div class="form-group">
+<label data-i18n="auto.key_49_e_mail_" for="loginEmail">E-Mail:</label>
+<input id="loginEmail" required="" type="email"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_50_passwort_" for="loginPassword">Passwort:</label>
+<input id="loginPassword" required="" type="password"/>
+</div>
+<button class="btn btn-primary" data-i18n="auto.key_51_anmelden" style="width: 100%;" type="submit">Anmelden</button>
+</form>
+</div>
+</div>
+<!-- Register Form -->
+<div class="form-overlay" id="registerOverlay">
+<div class="form-container">
+<button class="form-close" onclick="closeForm('registerOverlay')">×</button>
+<h2 data-i18n="auto.key_52_registrieren">Registrieren</h2>
+<form id="registerForm" onsubmit="handleRegister(event)">
+<div class="form-group">
+<label data-i18n="auto.key_53_name_" for="registerName">Name:</label>
+<input id="registerName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_54_e_mail_" for="registerEmail">E-Mail:</label>
+<input id="registerEmail" required="" type="email"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_55_geburtsdatum_" for="registerBirthday">Geburtsdatum:</label>
+<input id="registerBirthday" required="" type="date"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_56_passwort_" for="registerPassword">Passwort:</label>
+<input id="registerPassword" minlength="6" required="" type="password"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_57_passwort_best_tigen_" for="confirmPassword">Passwort bestätigen:</label>
+<input id="confirmPassword" required="" type="password"/>
+</div>
+<button class="btn btn-primary" data-i18n="auto.key_58_registrieren" style="width: 100%;" type="submit">Registrieren</button>
+</form>
+</div>
+</div>
+<!-- Contact Form -->
+<div class="form-overlay" id="contactOverlay">
+<div class="form-container">
+<button class="form-close" onclick="closeForm('contactOverlay')">×</button>
+<h2 data-i18n="auto.key_59_kontaktformular">Kontaktformular</h2>
+<form id="contactForm" onsubmit="handleContact(event)">
+<div class="form-group">
+<label data-i18n="auto.key_60_name_" for="contactName">Name:</label>
+<input id="contactName" required="" type="text"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_61_e_mail_" for="contactEmail">E-Mail:</label>
+<input id="contactEmail" required="" type="email"/>
+</div>
+<div class="form-group">
+<label data-i18n="auto.key_62_nachricht_" for="contactMessage">Nachricht:</label>
+<textarea id="contactMessage" required="" rows="5" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+</div>
+<button class="btn btn-primary" data-i18n="auto.key_63_nachricht_senden" style="width: 100%;" type="submit">Nachricht senden</button>
+</form>
+</div>
+</div>
+<!-- Profile Modal -->
+<div class="profile-modal" id="profileModal">
+<div class="profile-container">
+<button class="modal-close" onclick="closeProfileModal()">×</button>
+<div class="profile-header">
+<div class="profile-avatar" id="profileAvatar">👤</div>
+<div class="profile-name" data-i18n="auto.key_64_benutzername" id="profileDisplayName">Benutzername</div>
+<div class="profile-email" data-i18n="auto.key_65_user_example_com" id="profileDisplayEmail">user@example.com</div>
+</div>
+<div class="profile-body">
+<div class="profile-stats">
+<div class="stat-item" style="--delay: 0.1s;">
+<div class="stat-number" data-i18n="auto.key_66_28">28</div>
+<div class="stat-label" data-i18n="auto.key_67_beitr_ge">Beiträge</div>
+</div>
+<div class="stat-item" style="--delay: 0.2s;">
+<div class="stat-number" data-i18n="auto.key_68_156">156</div>
+<div class="stat-label" data-i18n="auto.key_69_kommentare">Kommentare</div>
+</div>
+<div class="stat-item" style="--delay: 0.3s;">
+<div class="stat-number" data-i18n="auto.key_70_12">12</div>
+<div class="stat-label" data-i18n="auto.key_71_events">Events</div>
+</div>
+</div>
+<div class="profile-actions">
+<button class="profile-btn primary" data-i18n="auto.key_72_profil_bearbeiten" onclick="editProfile()" style="--delay: 0.4s;">Profil bearbeiten</button>
+<button class="profile-btn secondary" data-i18n="auto.key_73_einstellungen" onclick="showSettings()" style="--delay: 0.5s;">Einstellungen</button>
+<button class="profile-btn danger" data-i18n="auto.key_74_konto_l_schen" onclick="deleteAccount()" style="--delay: 0.6s;">Konto löschen</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Community Updates Modal -->
+<div class="updates-modal" id="updatesModal">
+<div class="updates-container">
+<button class="modal-close" onclick="closeUpdatesModal()">×</button>
+<div class="updates-header">
+<div class="updates-title" data-i18n="auto.key_75__community_updates">🚀 Community Updates</div>
+<div class="updates-subtitle" data-i18n="auto.key_76_die_neuesten_nachrichten_und_entwicklung">Die neuesten Nachrichten und Entwicklungen</div>
+</div>
+<div class="updates-body">
+<div class="update-item" style="--delay: 0.1s;">
+<div class="update-date" data-i18n="auto.key_77_heute">Heute</div>
+<div class="update-title" data-i18n="auto.key_78__neue_beta_features_verf_gbar_">🎉 Neue Beta-Features verfügbar!</div>
+<div class="update-content" data-i18n="auto.key_79_wir_haben_spannende_neue_features_hinzug">
+                        Wir haben spannende neue Features hinzugefügt: Verbesserte Profile, erweiterte KI-Funktionen und eine noch bessere Community-Erfahrung. Probiere sie jetzt aus!
+                    </div>
+<div class="update-tags">
+<span class="update-tag" data-i18n="auto.key_80_neu" style="--tag-delay: 0.1s;">Neu</span>
+<span class="update-tag" data-i18n="auto.key_81_beta" style="--tag-delay: 0.2s;">Beta</span>
+<span class="update-tag" data-i18n="auto.key_82_features" style="--tag-delay: 0.3s;">Features</span>
+</div>
+</div>
+<div class="update-item" style="--delay: 0.2s;">
+<div class="update-date" data-i18n="auto.key_83_gestern">Gestern</div>
+<div class="update-title" data-i18n="auto.key_84__performance_verbesserungen">🔧 Performance-Verbesserungen</div>
+<div class="update-content" data-i18n="auto.key_85_die_ladezeiten_wurden_um_40_reduziert_un">
+                        Die Ladezeiten wurden um 40% reduziert und die Animationen laufen jetzt noch flüssiger. Deine Community-Erfahrung wird dadurch deutlich verbessert.
+                    </div>
+<div class="update-tags">
+<span class="update-tag" data-i18n="auto.key_86_performance" style="--tag-delay: 0.1s;">Performance</span>
+<span class="update-tag" data-i18n="auto.key_87_optimierung" style="--tag-delay: 0.2s;">Optimierung</span>
+</div>
+</div>
+<div class="update-item" style="--delay: 0.3s;">
+<div class="update-date" data-i18n="auto.key_88_2_tage">2 Tage</div>
+<div class="update-title" data-i18n="auto.key_89__ki_assistent_update">🤖 KI-Assistent Update</div>
+<div class="update-content" data-i18n="auto.key_90_unser_ki_assistent_wurde_mit_neuen_f_hig">
+                        Unser KI-Assistent wurde mit neuen Fähigkeiten ausgestattet und kann jetzt noch besser bei Community-Fragen helfen. Teste die neuen Funktionen!
+                    </div>
+<div class="update-tags">
+<span class="update-tag" data-i18n="auto.key_91_ki" style="--tag-delay: 0.1s;">KI</span>
+<span class="update-tag" data-i18n="auto.key_92_update" style="--tag-delay: 0.2s;">Update</span>
+<span class="update-tag" data-i18n="auto.key_93_intelligent" style="--tag-delay: 0.3s;">Intelligent</span>
+</div>
+</div>
+<div class="update-item" style="--delay: 0.4s;">
+<div class="update-date" data-i18n="auto.key_94_1_woche">1 Woche</div>
+<div class="update-title" data-i18n="auto.key_95__community_meilenstein_erreicht_">🌟 Community-Meilenstein erreicht!</div>
+<div class="update-content" data-i18n="auto.key_96_wir_freuen_uns_bekannt_zu_geben_dass_uns">
+                        Wir freuen uns, bekannt zu geben, dass unsere Community jetzt über 1000 aktive Mitglieder hat! Vielen Dank für euer Vertrauen und eure Teilnahme.
+                    </div>
+<div class="update-tags">
+<span class="update-tag" data-i18n="auto.key_97_meilenstein" style="--tag-delay: 0.1s;">Meilenstein</span>
+<span class="update-tag" data-i18n="auto.key_98_community" style="--tag-delay: 0.2s;">Community</span>
+<span class="update-tag" data-i18n="auto.key_99_erfolg" style="--tag-delay: 0.3s;">Erfolg</span>
+</div>
+</div>
+<div class="update-item" style="--delay: 0.5s;">
+<div class="update-date" data-i18n="auto.key_100_2_wochen">2 Wochen</div>
+<div class="update-title" data-i18n="auto.key_101__neues_design_system">🎨 Neues Design-System</div>
+<div class="update-content" data-i18n="auto.key_102_wir_haben_ein_komplett_neues_design_syst">
+                        Wir haben ein komplett neues Design-System eingeführt mit modernen Animationen, verbesserter Benutzerfreundlichkeit und einem frischen Look.
+                    </div>
+<div class="update-tags">
+<span class="update-tag" data-i18n="auto.key_103_design" style="--tag-delay: 0.1s;">Design</span>
+<span class="update-tag" data-i18n="auto.key_104_ui_ux" style="--tag-delay: 0.2s;">UI/UX</span>
+<span class="update-tag" data-i18n="auto.key_105_modern" style="--tag-delay: 0.3s;">Modern</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Notifications -->
+<!-- Guest Reminder -->
+<div class="guest-reminder" data-i18n="auto.key_106_melde_dich_kostenlos_an_und_werde_teil_d" id="guestReminder" onclick="showRegisterForm()">
+        Melde dich kostenlos an und werde Teil der EHE Community – exklusive Funktionen warten auf dich! ✨
+    </div>
+<!-- Inactivity Warning -->
+<div class="inactivity-warning" id="inactivityWarning">
+<h3 data-i18n="auto.key_107__inaktivit_tswarnung">⚠️ Inaktivitätswarnung</h3>
+<p data-i18n="auto.key_108_du_bist_seit_2_minuten_inaktiv_aus_siche">Du bist seit 2 Minuten inaktiv. Aus Sicherheitsgründen wirst du bald ausgeloggt.</p>
+<p><strong data-i18n="auto.key_109_klicke_irgendwo_um_aktiv_zu_bleiben">Klicke irgendwo, um aktiv zu bleiben</strong></p>
+<button class="btn btn-primary" data-i18n="auto.key_110_aktiv_bleiben" onclick="resetInactivityTimer()" style="margin-top: 15px;">Aktiv bleiben</button>
+</div>
+<!-- AI Assistant -->
+<div class="ai-assistant" id="aiAssistant" onclick="toggleAIChat()">
+<i>🤖</i>
+</div>
+<!-- AI Chat -->
+<div class="ai-chat" id="aiChat">
+<div class="ai-chat-header">
+<h3 data-i18n="auto.key_111_ki_assistent">KI-Assistent</h3>
+<button onclick="toggleAIChat()" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">×</button>
+</div>
+<div class="ai-chat-messages" id="aiMessages">
+<div data-i18n="auto.key_112_hallo_ich_bin_dein_ki_assistent_wie_kann" style="background: #f0f0f0; padding: 10px; border-radius: 10px; margin-bottom: 10px; color: #333;">
+                Hallo! Ich bin dein KI-Assistent. Wie kann ich dir helfen?
+            </div>
+</div>
+<div class="ai-chat-input">
+<input id="aiInput" onkeypress="handleAIKeyPress(event)" placeholder="Nachricht eingeben..." type="text"/>
+<button data-i18n="auto.key_113_senden" onclick="sendAIMessage()">Senden</button>
+</div>
+</div>
+<script>
+        // Global variables
+        let currentUser = null;
+        let registeredUsers = [];
+        let isLoggedIn = false;
+        let inactivityTimer = null;
+        let guestReminderTimer = null;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading screen after 20 seconds
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }, 20000);
+
+            // Start guest reminder for non-logged users
+            startGuestReminder();
+            
+            // Check login status
+            updateUI(); updateCardAccess();
+        });
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+
+        // Show/Hide forms
+        function showLoginForm() {
+    document.getElementById('loginOverlay').classList.add('dark-overlay');
+            document.getElementById('loginOverlay').style.display = 'flex';
+        }
+
+        function showRegisterForm() {
+    document.getElementById('registerOverlay').classList.add('dark-overlay');
+            document.getElementById('registerOverlay').style.display = 'flex';
+        }
+
+        function showContactForm() {
+            document.getElementById('contactOverlay').style.display = 'flex';
+        }
+
+        function closeForm(overlayId) {
+            document.getElementById(overlayId).style.display = 'none';
+        }
+
+        // Registration handler
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showNotification('Passwörter stimmen nicht überein!', 'error');
+                return;
+            }
+
+            
+            const birthday = document.getElementById('registerBirthday').value;
+            const birthDate = new Date(birthday);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            const dayDiff = today.getDate() - birthDate.getDate();
+
+            let is16 = false;
+            if (age > 16) {
+                is16 = true;
+            } else if (age === 16) {
+                if (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)) {
+                    is16 = true;
+                }
+            }
+
+            if (!is16) {
+                showNotification('Du musst mindestens 16 Jahre alt sein, um dich zu registrieren.', 'error');
+                return;
+            }
+
+            // Check if user already exists
+            if (registeredUsers.find(user => user.email === email)) {
+                showNotification('Diese E-Mail ist bereits registriert!', 'error');
+                return;
+            }
+
+            // Register user
+            const newUser = { name, email, password };
+            registeredUsers.push(newUser);
+            
+            showNotification('Registrierung erfolgreich! Du kannst dich jetzt anmelden.', 'success');
+            closeForm('registerOverlay');
+            // Automatisch Login-Formular öffnen
+            setTimeout(() => {
+                showLoginForm();
+            }, 500);
+
+            
+            // Send email confirmation (simulation)
+            setTimeout(() => {
+                showNotification('Bestätigungs-E-Mail wurde gesendet!', 'success');
+            }, 1000);
+        }
+
+        // Login handler
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Check credentials
+            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                isLoggedIn = true;
+                showNotification(`Willkommen zurück, ${user.name}!`, 'success');
+                closeForm('loginOverlay');
+                updateUI(); updateCardAccess();
+                startInactivityTimer();
+                
+                // Send login email confirmation (simulation)
+                setTimeout(() => {
+                    showNotification('Login-Bestätigung per E-Mail gesendet!', 'success');
+                }, 1000);
+            } else {
+                showNotification('Ungültige Anmeldedaten! Bitte registriere dich zuerst.', 'error');
+            }
+        }
+
+        // Logout handler
+        function logout() {
+            currentUser = null;
+            isLoggedIn = false;
+            clearTimeout(inactivityTimer);
+            clearTimeout(guestReminderTimer);
+            
+            showNotification('Du wurdest erfolgreich abgemeldet!', 'success');
+            updateUI(); updateCardAccess();
+            startGuestReminder();
+            
+            // Send logout confirmation (simulation)
+            setTimeout(() => {
+                showNotification('Abmelde-Bestätigung per E-Mail gesendet!', 'success');
+            }, 1000);
+        }
+
+        // Update UI based on login status
+        function updateUI() {
+            const guestButtons = document.getElementById('guestButtons');
+            const userMenu = document.getElementById('userMenu');
+            const userName = document.getElementById('userName');
+
+            if (isLoggedIn && currentUser) {
+                guestButtons.style.display = 'none';
+                userMenu.classList.add('active');
+                userName.textContent = `Willkommen, ${currentUser.name}!`;
+                stopGuestReminder();
+            } else {
+                guestButtons.style.display = 'flex';
+                userMenu.classList.remove('active');
+                startGuestReminder();
+            }
+        }
+
+        // Guest reminder functions
+        function startGuestReminder() {
+            if (!isLoggedIn) {
+                guestReminderTimer = setInterval(() => {
+                    showGuestReminder();
+                }, 30000); // Every 30 seconds
+            }
+        }
+
+        function stopGuestReminder() {
+            clearInterval(guestReminderTimer);
+            hideGuestReminder();
+        }
+
+        function showGuestReminder() {
+            if (!isLoggedIn) {
+                const reminder = document.getElementById('guestReminder');
+                reminder.style.display = 'block';
+                setTimeout(() => {
+                    hideGuestReminder();
+                }, 5000); // Hide after 5 seconds
+            }
+        }
+
+        function hideGuestReminder() {
+            document.getElementById('guestReminder').style.display = 'none';
+        }
+
+        // Inactivity timer functions
+        function startInactivityTimer() {
+            if (isLoggedIn) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(() => {
+                    showInactivityWarning();
+                }, 120000); // 2 minutes
+            }
+        }
+
+        function resetInactivityTimer() {
+            hideInactivityWarning();
+            if (isLoggedIn) {
+                startInactivityTimer();
+            }
+        }
+
+        function showInactivityWarning() {
+            if (isLoggedIn) {
+                document.getElementById('inactivityWarning').style.display = 'block';
+                // Auto logout after additional 30 seconds if no activity
+                setTimeout(() => {
+                    if (document.getElementById('inactivityWarning').style.display === 'block') {
+                        logout();
+                        hideInactivityWarning();
+                        showNotification('Du wurdest aufgrund von Inaktivität abgemeldet.', 'warning');
+                    }
+                }, 30000);
+            }
+        }
+
+        function hideInactivityWarning() {
+            document.getElementById('inactivityWarning').style.display = 'none';
+        }
+
+        // Activity detection
+        document.addEventListener('click', resetInactivityTimer);
+        document.addEventListener('keypress', resetInactivityTimer);
+        document.addEventListener('mousemove', resetInactivityTimer);
+
+        // Content interaction handlers
+        function handleContentClick(type) {
+            if (type === 'restricted' && !isLoggedIn) {
+                showNotification('Dieser Bereich ist nur für Mitglieder zugänglich. Bitte logge dich ein oder registriere dich kostenlos!', 'warning');
+                setTimeout(() => {
+                    showRegisterForm();
+                }, 1500);
+                return;
+            }
+
+            switch(type) {
+                case 'posts':
+                    showNotification('Lade Beiträge...', 'success');
+                    break;
+                case 'events':
+                    if (isLoggedIn) {
+                        showNotification('Lade vollständige Veranstaltungsübersicht...', 'success');
+                    } else {
+                        showNotification('Lade eingeschränkte Veranstaltungsübersicht...', 'success');
+                    }
+                    break;
+                case 'about':
+                    showNotification('Öffne Community-Informationen...', 'success');
+                    break;
+                case 'restricted':
+                    showNotification('Lade exklusive Inhalte...', 'success');
+                    break;
+            }
+        }
+
+        // Show User Profile Modal
+        function showUserProfile() {
+            if (!isLoggedIn) {
+                showNotification('Dieser Bereich ist nur für Mitglieder zugänglich. Bitte logge dich ein oder registriere dich kostenlos!', 'warning');
+                setTimeout(() => {
+                    showRegisterForm();
+                }, 1500);
+                return;
+            }
+
+            // Update profile display with current user data
+            document.getElementById('profileDisplayName').textContent = currentUser.name;
+            document.getElementById('profileDisplayEmail').textContent = currentUser.email;
+            
+            // Set avatar based on first letter of name
+            const firstLetter = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('profileAvatar').textContent = firstLetter;
+            
+            // Show modal
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        // Close Profile Modal
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        // Show Community Updates Modal
+        function showCommunityUpdates() {
+            document.getElementById('updatesModal').style.display = 'flex';
+        }
+
+        // Close Updates Modal
+        function closeUpdatesModal() {
+            document.getElementById('updatesModal').style.display = 'none';
+        }
+
+        // Edit Profile Function
+        function editProfile() {
+            closeProfileModal();
+            showProfileManagement();
+        }
+
+        // Show Settings Function
+        function showSettings() {
+            showNotification('Einstellungen werden geladen...', 'success');
+            // Here you could implement a settings modal
+        }
+
+        // Profile functions
+        function showProfile() {
+            if (isLoggedIn && currentUser) {
+                showNotification(`Profil von ${currentUser.name} wird geladen...`, 'success');
+                // Here you could open a profile modal or navigate to profile page
+            }
+        }
+
+        // Contact form handler
+        function handleContact(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // Simulate sending message
+            showNotification('Nachricht wird gesendet...', 'success');
+            
+            setTimeout(() => {
+                showNotification('Nachricht erfolgreich gesendet! Wir melden uns bald bei dir.', 'success');
+                closeForm('contactOverlay');
+                document.getElementById('contactForm').reset();
+            }, 2000);
+        }
+
+        // AI Assistant functions
+        function toggleAIChat() {
+            const aiChat = document.getElementById('aiChat');
+            
+            if (!isLoggedIn) {
+                showNotification('Der KI-Assistent ist nur für Mitglieder zugänglich. Bitte logge dich ein oder registriere dich kostenlos!', 'warning');
+                setTimeout(() => {
+                    showRegisterForm();
+                }, 1500);
+                return;
+            }
+
+            if (aiChat.style.display === 'none' || aiChat.style.display === '') {
+                aiChat.style.display = 'flex';
+            } else {
+                aiChat.style.display = 'none';
+            }
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addAIMessage(message, 'user');
+            input.value = '';
+
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    'Danke für deine Nachricht! Wie kann ich dir weiterhelfen?',
+                    'Das ist eine interessante Frage. Hier sind einige Informationen dazu...',
+                    'Gerne helfe ich dir dabei! Was möchtest du genau wissen?',
+                    'Als KI-Assistent der EHE Community kann ich dir bei verschiedenen Themen helfen.',
+                    'Benötigst du Hilfe bei der Navigation oder hast du Fragen zur Community?',
+                    'Ich bin hier, um dir zu helfen! Stelle gerne weitere Fragen.',
+                    'Das kann ich für dich klären. Möchtest du mehr Details dazu?'
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addAIMessage(randomResponse, 'ai');
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function addAIMessage(message, sender) {
+            const messagesContainer = document.getElementById('aiMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                messageDiv.style.cssText = 'background: #667eea; color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 10px; margin-left: 20px; text-align: right;';
+            } else {
+                messageDiv.style.cssText = 'background: #f0f0f0; color: #333; padding: 10px; border-radius: 10px; margin-bottom: 10px; margin-right: 20px;';
+            }
+            
+            messageDiv.textContent = message;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleAIKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendAIMessage();
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Account deletion (for logged in users)
+        function deleteAccount() {
+            if (!isLoggedIn || !currentUser) return;
+            
+            if (confirm('Möchtest du dein Konto wirklich dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+                const userEmail = currentUser.email;
+                
+                // Remove user from registered users
+                registeredUsers = registeredUsers.filter(user => user.email !== userEmail);
+                
+                // Send deletion confirmation email (simulation)
+                showNotification('Konto-Löschung bestätigt per E-Mail gesendet!', 'success');
+                
+                // Logout user
+                setTimeout(() => {
+                    logout();
+                    showNotification('Dein Konto wurde erfolgreich gelöscht.', 'success');
+                }, 1500);
+            }
+        }
+
+        // Close forms when clicking outside
+        document.addEventListener('click', function(event) {
+            const overlays = document.querySelectorAll('.form-overlay');
+            overlays.forEach(overlay => {
+                if (event.target === overlay) {
+                    overlay.style.display = 'none';
+                }
+            });
+        });
+
+        // Close AI chat when clicking outside
+        document.addEventListener('click', function(event) {
+            const aiChat = document.getElementById('aiChat');
+            const aiAssistant = document.getElementById('aiAssistant');
+            
+            if (aiChat.style.display === 'flex' && 
+                !aiChat.contains(event.target) && 
+                !aiAssistant.contains(event.target)) {
+                aiChat.style.display = 'none';
+            }
+        });
+
+        // Hide inactivity warning when clicking anywhere
+        document.addEventListener('click', function(event) {
+            const warning = document.getElementById('inactivityWarning');
+            if (warning.style.display === 'block' && !warning.contains(event.target)) {
+                resetInactivityTimer();
+            }
+        });
+
+        // Demo users for testing (remove in production)
+        window.addEventListener('load', function() {
+            // Add some demo users for testing
+            registeredUsers.push(
+                { name: 'Max Mustermann', email: 'max@example.com', password: 'password123' },
+                { name: 'Anna Schmidt', email: 'anna@example.com', password: 'password123' }
+            );
+        });
+
+        // Prevent right-click context menu (optional security measure)
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+
+        // Prevent F12 key (optional security measure)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'F12' || 
+                (event.ctrlKey && event.shiftKey && event.key === 'I') ||
+                (event.ctrlKey && event.shiftKey && event.key === 'C') ||
+                (event.ctrlKey && event.key === 'u')) {
+                event.preventDefault();
+            }
+        });
+
+        // Add profile management for logged in users
+        function showProfileManagement() {
+            if (!isLoggedIn || !currentUser) return;
+            
+            const profileHTML = `
+                <div class="form-overlay" id="profileOverlay" style="display: flex;">
+                    <div class="form-container">
+                        <button class="form-close" onclick="closeForm('profileOverlay')">&times;</button>
+                        <h2>Profil verwalten</h2>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" id="profileName" value="${currentUser.name}">
+                        </div>
+                        <div class="form-group">
+                            <label>E-Mail:</label>
+                            <input type="email" id="profileEmail" value="${currentUser.email}" readonly>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateProfile()" style="width: 100%; margin-bottom: 10px;">Profil aktualisieren</button>
+                        <button class="btn" onclick="deleteAccount()" style="width: 100%; background: #f44336; color: #fff;">Konto löschen</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', profileHTML);
+        }
+
+        function updateProfile() {
+            const newName = document.getElementById('profileName').value;
+            if (newName.trim()) {
+                currentUser.name = newName.trim();
+                // Update in registered users array
+                const userIndex = registeredUsers.findIndex(user => user.email === currentUser.email);
+                if (userIndex !== -1) {
+                    registeredUsers[userIndex].name = newName.trim();
+                }
+                updateUI(); updateCardAccess();
+                showNotification('Profil erfolgreich aktualisiert!', 'success');
+                closeForm('profileOverlay');
+                // Remove the dynamically created overlay
+                setTimeout(() => {
+                    const overlay = document.getElementById('profileOverlay');
+                    if (overlay) overlay.remove();
+                }, 300);
+            }
+        }
+
+        // Update the showProfile function to use the new profile management
+        function showProfile() {
+            if (isLoggedIn && currentUser) {
+                showProfileManagement();
+            }
+        }
+    
+// Welcome system with timer and effects
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const overlay = document.getElementById('welcomeOverlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    // Play sound
+    const sound = document.getElementById('welcomeSound');
+    if (sound) sound.play().catch(() => {});
+
+    // Start confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }, 4000); // 4 Sekunden Verzögerung
+
+  // Animate particles
+  const canvas = document.getElementById('particlesCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function createParticles() {
+    particles = Array.from({length: 60}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5
+    }));
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(drawParticles);
+  }
+
+  createParticles();
+  drawParticles();
+});
+
+</script>
+<footer style="text-align: center; padding: 20px; color: white; background: rgba(0, 0, 0, 0.2); animation: fadeInSlideUp 1s ease-out;">
+<p data-i18n="auto.key_114__2025_ehe_community_alle_rechte_vorbehal">© 2025 EHE Community – Alle Rechte vorbehalten</p>
+<p data-i18n="auto.key_115_online_seit_mai_2024">Online seit: Mai 2024</p>
+</footer>
+<style>
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+footer {
+    animation: fadeInSlideUp 1s ease-out;
+}
+</style>
+<script>
+document.querySelectorAll('.content-card').forEach(card => {
+    card.addEventListener('click', () => {
+        card.classList.add('animate-click');
+        setTimeout(() => card.classList.remove('animate-click'), 600);
+    });
+});
+</script>
+<script>
+function animateCard(element) {
+    element.classList.add('animate-click');
+    setTimeout(() => element.classList.remove('animate-click'), 600);
+}
+</script>
+<script>
+function updateCardAccess() {
+    const isLoggedIn = window.isLoggedIn === true;
+    document.querySelectorAll('.content-card').forEach(card => {
+        const badge = card.querySelector('.access-badge');
+        if (!badge) return;
+
+        // Nur Karten mit 'guest-limited' sollen überhaupt Badges anzeigen
+        if (!card.classList.contains('guest-limited')) {
+            badge.style.display = "none";
+            return;
+        }
+
+        // Für .guest-limited: Badge anzeigen & Status setzen
+        badge.classList.remove('red', 'green');
+        badge.style.display = "inline-block";
+
+        if (isLoggedIn) {
+            badge.textContent = "✅ Verfügbar für dich";
+            badge.classList.add('green');
+        } else {
+            badge.textContent = "🔒 Nur für Mitglieder";
+            badge.classList.add('red');
+        }
+    });
+}
+window.updateCardAccess = updateCardAccess;
+document.addEventListener("DOMContentLoaded", updateCardAccess);
+</script>
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        const overlay = document.getElementById('mobileOverlay');
+        if (overlay) overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        const main = document.getElementById('mainContent');
+        if (main) main.style.pointerEvents = 'none';
+      }
+    }, 20000);
+  });
+</script>
+<!-- Update Popup -->
+<div class="form-overlay dark-overlay" id="updatePopup" style="display: none; z-index: 10000;">
+<div class="form-container stylish-update-popup" style="max-width: 480px; text-align: center; position: relative;">
+<button class="form-close" onclick="closeUpdatePopup()">×</button>
+<h2 class="update-headline" data-i18n="auto.key_116__neues_update_im_anflug">🚀 Neues Update im Anflug</h2>
+<p class="update-message" data-i18n="auto.key_117_entdecke_bald_die_neuen_funktionen_die_b" id="updateText">Entdecke bald die neuen Funktionen, die bald auf dich zukommen …</p>
+<button class="btn-donold install-btn" data-i18n="auto.key_118_jetzt_installieren" id="installButton" onclick="startUpdate()" style="display: none;">Jetzt installieren</button>
+</div>
+</div>
+<script>
+  const updatePopup = document.getElementById('updatePopup');
+  const updateText = document.getElementById('updateText');
+  const installButton = document.getElementById('installButton');
+  const installCountdown = document.getElementById('installCountdown');
+
+  const updateDeadline = new Date('2025-07-02T20:00:00').getTime();
+  const installedKey = 'update_installed_2025_06_05';
+  let updateCompleted = localStorage.getItem(installedKey) === 'true';
+  let installStarted = false;
+
+  function updateCountdown() {
+    const now = Date.now();
+    const remaining = updateDeadline - now;
+
+    if (remaining > 0) {
+      const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+      installCountdown.innerHTML = `🕒 Update verfügbar in<br><strong>${days} Tag(e), ${hours} Std, ${minutes} Min, ${seconds} Sek</strong>`;
+      installCountdown.style.display = 'block';
+      installButton.style.display = 'none';
+    } else {
+      installCountdown.style.display = 'none';
+      if (!updateCompleted && !installStarted) {
+        updateText.innerHTML = '✨ Das Update ist jetzt verfügbar!<br>Klicke auf „Jetzt installieren“, um die neuen Features zu aktivieren.';
+        installButton.style.display = 'inline-block';
+      }
+    }
+  }
+
+  function showUpdatePopup() {
+    if (updateCompleted) return;
+    updateCountdown();
+    updatePopup.style.display = 'flex';
+  }
+
+  function closeUpdatePopup() {
+    updatePopup.style.display = 'none';
+  }
+
+  function startUpdate() {
+    installStarted = true;
+    installButton.disabled = true;
+    let secondsLeft = 20;
+    installCountdown.style.display = 'block';
+    installCountdown.textContent = `🔄 Update wird installiert in ${secondsLeft} Sekunden …`;
+
+    const countdown = setInterval(() => {
+      secondsLeft--;
+      installCountdown.textContent = `🔄 Update wird installiert in ${secondsLeft} Sekunden …`;
+      if (secondsLeft <= 0) {
+        clearInterval(countdown);
+        updateCompleted = true;
+        localStorage.setItem(installedKey, 'true');
+        installCountdown.innerHTML = '✅ Update erfolgreich installiert!';
+        updateText.innerHTML = `
+          <strong>🎉 Neue Funktionen:</strong><br>
+          <ul style="text-align:left;margin-top:10px;">
+            <li>• <span style="color:#feca57;"Es Würden Bugs sowie Fehlerbehoben</li>
+            <li>• <span style="color:#feca57;"Anmledungssytem Verbessert</li>
+            <li>• <span style="color:#feca57;"Neue Animationen Würden Verbessert</li>
+          </ul>`;
+        installButton.style.display = 'none';
+      }
+    }, 1000);
+  }
+
+  function startPopupAfterWelcomeClosed() {
+    if (updateCompleted) return;
+    
+    showUpdatePopup();
+    setTimeout(() => {
+      const popupBox = document.querySelector('.stylish-update-popup');
+      if (popupBox) {
+        popupBox.classList.add('popup-visible');
+      }
+    }, 50);
+    
+    setInterval(updateCountdown, 1000);
+    setInterval(() => {
+      if (!updateCompleted) 
+    showUpdatePopup();
+    setTimeout(() => {
+      const popupBox = document.querySelector('.stylish-update-popup');
+      if (popupBox) {
+        popupBox.classList.add('popup-visible');
+      }
+    }, 50);
+    
+    }, 2 * 60 * 1000);
+  }
+
+  const originalCloseWelcome = window.closeWelcome;
+  window.closeWelcome = function () {
+    originalCloseWelcome();
+    setTimeout(startPopupAfterWelcomeClosed, 1000);
+  };
+
+  // Klickschutz – Popup darf NUR über „×“ geschlossen werden
+  document.getElementById('updatePopup').addEventListener('click', function (event) {
+    if (!event.target.closest('.form-container')) event.stopPropagation();
+  });
+</script>
+<style>
+  .stylish-update-popup {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+    background: linear-gradient(135deg, #1e1e1e, #111);
+    color: #fff;
+    border: 2px solid #feca57;
+    box-shadow: 0 0 25px rgba(255, 234, 87, 0.2);
+    border-radius: 20px;
+    padding: 30px 25px;
+    animation: elegantPulse 4s ease-in-out infinite;
+    transition: all 0.3s ease;
+  }
+  .stylish-update-popup:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 35px rgba(255, 234, 87, 0.4);
+  }
+  .update-headline {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #feca57;
+    text-shadow: 0 0 8px rgba(254, 202, 87, 0.4);
+  }
+  .update-message {
+    font-size: 16px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+  .countdown-box {
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #feca57;
+    font-weight: bold;
+  }
+  .install-btn {
+    animation: pulseGlow 2s infinite ease-in-out;
+    font-size: 16px;
+    padding: 12px 30px;
+  }
+  @keyframes elegantPulse {
+    0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.05); }
+    50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
+    100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.05); }
+  }
+
+  .form-overlay {
+    animation: fadeInOverlay 1s ease forwards;
+  }
+
+  .stylish-update-popup {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: zoomInPopup 0.8s ease forwards;
+    animation-delay: 0.2s;
+  }
+
+  @keyframes fadeInOverlay {
+    from { background-color: rgba(0, 0, 0, 0); }
+    to { background-color: rgba(0, 0, 0, 0.75); }
+  }
+
+  
+  .stylish-update-popup.popup-visible {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+
+  @keyframes zoomInPopup {
+
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+</style>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const blocker = document.getElementById("mobileOverlay");
+
+    // Prüfen ob auf Handy & ob Update schon installiert
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const hasUpdate = localStorage.getItem("updateInstalled");
+
+    if (blocker && isMobile && !hasUpdate) {
+      blocker.querySelector("p").innerText = "Update wird installiert...\nMobile Zugriff bald verfügbar...";
+      blocker.style.display = "flex";
+
+      setTimeout(() => {
+        blocker.remove(); // Entfernt Overlay nach Cooldown
+        localStorage.setItem("updateInstalled", "true"); // Merkt sich Installation
+        console.log("✅ Update installiert & gespeichert – Mobile Zugriff aktiviert.");
+      }, 30000); // 30 Sekunden
+    } else if (blocker && isMobile && hasUpdate) {
+      blocker.remove(); // Kein Cooldown nötig
+      console.log("🔁 Update bereits installiert – Zugriff sofort erlaubt.");
+    }
+  });
+</script>
+<script>
+const UPDATE_VERSION = "v2.5";
+
+function triggerUpdateInstall() {
+  const lastVersion = localStorage.getItem("ehe_installedVersion");
+
+  if (lastVersion !== UPDATE_VERSION) {
+    document.getElementById("mobileOverlay").style.display = "flex";
+    localStorage.setItem("ehe_installedVersion", UPDATE_VERSION);
+  } else {
+    document.getElementById("mobileOverlay").style.display = "none";
+  }
+}
+
+
+function showNotification(message) {
+  const note = document.getElementById("notification");
+  if (!note) return;
+
+  note.textContent = message;
+  note.style.display = "block";
+  note.className = "notification warning";
+  setTimeout(() => {
+    note.style.display = "none";
+  }, 5000);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const storedVersion = localStorage.getItem("ehe_installedVersion");
+  if (storedVersion !== UPDATE_VERSION) {
+    showNotification("🚀 Neues Update verfügbar! Jetzt installieren.");
+  }
+});
+</script>
+<script src="auth.js" type="module"></script>
+<script>
+function showNotification(message, type = "info") {
+  const box = document.getElementById("notification");
+  const text = document.getElementById("notification-message");
+  text.innerText = message;
+
+  box.style.background = {
+    success: "#4caf50",
+    error: "#f44336",
+    warning: "#ff9800",
+    info: "#333"
+  }[type] || "#333";
+
+  box.style.display = "block";
+  setTimeout(() => { box.style.display = "none"; }, 4000);
+}
+</script>
+
+<script>
+function showNotification(message, type = "info") {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.className = "notification " + type;
+  notification.style.display = "block";
+  setTimeout(() => {
+    notification.style.display = "none";
+  }, 4000);
+}
+</script>
+</body>
+</html>
